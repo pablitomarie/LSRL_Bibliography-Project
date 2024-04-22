@@ -34,22 +34,24 @@ noTags = df[df['Manual Tags'].isna() == True]['Title']  # journal titles with no
 
 # load spacy english model
 nlp = spacy.load("en_core_web_sm")
+nlp.Defaults.stop_words |= {"language", "languages", "paper", "section", "romance", "spanish", "french", "romanian", "rumanian", "portuguese", "catalan", "italian"}
 # remove stopwords and punct in abstracts and titles
-df['Abstract'] = df['Abstract'].apply(lambda x: ' '.join([token.text for token in nlp(x) if (not token.is_stop and not token.is_punct)]))
-df['Title'] = df['Title'].apply(lambda x: ' '.join([token.text for token in nlp(x) if (not token.is_stop and not token.is_punct)]))
+df['Abstract'] = df['Abstract'].apply(
+    lambda x: ' '.join([token.text for token in nlp(x) if (not token.is_stop and not token.is_punct)]))
+df['Title'] = df['Title'].apply(
+    lambda x: ' '.join([token.text for token in nlp(x) if (not token.is_stop and not token.is_punct)]))
 # get value counts in ALL abstracts
 # counts = pd.Series(' '.join(df['Abstract']).split()).value_counts()
 
-df = df.assign(Decade = (df['Date'] // 10) * 10)
+df = df.assign(Decade=(df['Date'] // 10) * 10)
 decades = sorted(list(df['Decade'].unique()))
 
 for yr in decades:
     dfDecade = df[df['Decade'] == yr]
     top10Titles = pd.Series(' '.join(dfDecade['Title']).split()).value_counts()[:10]
     top10Abstracts = pd.Series(' '.join(dfDecade['Abstract']).split()).value_counts()[:10]
-    print(top10Titles)
+    # print(top10Titles)
     print(top10Abstracts)
-
 
 # OTHER
 # top10Authors = df['Author'].value_counts()[:10].to_dict()
